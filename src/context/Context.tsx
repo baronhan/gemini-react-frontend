@@ -17,20 +17,26 @@ const ContextProvider = (props) => {
     }, 75 * index);
   };
 
-  const onSent = async () => {
+  const onSent = async (prompt) => {
     setResultData("");
     setLoading(true);
     setShowResult(true);
-    setRecentPrompt(input);
 
-    // Cập nhật state prevPrompts bằng cách thêm prompt mới vào cuối danh sách hiện tại
-    // prev: là danh sách các prompt hiện tại (mảng cũ)
-    // [...prev, input]: tạo một mảng mới bằng cách sao chép tất cả các phần tử cũ trong prev và thêm phần tử input vào cuối mảng
-    // setPrevPrompts sẽ làm mới state prevPrompts với mảng mới này
-    // setPrevPrompts((prev) => [...prev, input]);
+    let response;
 
-    setPrevPrompts((prev) => [...prev, input]);
-    const response = await run(input);
+    if (prompt !== undefined) {
+      response = await run(prompt);
+      setRecentPrompt(prompt);
+    } else {
+      // Cập nhật state prevPrompts bằng cách thêm prompt mới vào cuối danh sách hiện tại
+      // prev: là danh sách các prompt hiện tại (mảng cũ)
+      // [...prev, input]: tạo một mảng mới bằng cách sao chép tất cả các phần tử cũ trong prev và thêm phần tử input vào cuối mảng
+      // setPrevPrompts sẽ làm mới state prevPrompts với mảng mới này
+      // setPrevPrompts((prev) => [...prev, input]);
+      setPrevPrompts((prev) => [...prev, input]);
+      setRecentPrompt(input);
+      response = await run(input);
+    }
 
     let responseArray = response.split("**");
 
@@ -55,6 +61,12 @@ const ContextProvider = (props) => {
     setInput("");
   };
 
+  const newChat = () => {
+    setLoading(false);
+    setShowResult(false);
+    setInput("");
+  };
+
   const contextValue = {
     prevPrompts,
     setPrevPrompts,
@@ -66,6 +78,7 @@ const ContextProvider = (props) => {
     resultData,
     input,
     setInput,
+    newChat,
   };
 
   return (
